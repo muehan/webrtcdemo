@@ -1,6 +1,9 @@
 <template>
   <div>
     <p>{{id}}</p>
+
+    <input type="text" v-model="idToConnect"/>
+    <button @click="connect">Connect</button>
   </div>
 </template>
 
@@ -12,7 +15,16 @@ export default {
   data () {
     return {
       peer: null,
-      id: null,
+      id: '',
+      idToConnect: '',
+    }
+  },
+  methods: {
+    connect: function(){
+      var conn = this.peer.connect(this.idToConnect);
+      conn.on('open', function(){
+        conn.send('hi!');
+      });
     }
   },
   created () {
@@ -20,6 +32,14 @@ export default {
     this.peer.on('open', function(id) {
       this.id = id;
       console.log('My peer ID is: ' + id);
+    });
+
+    this.peer.on('connection', function(conn) {
+      console.log("Connection works");
+      
+      conn.on('data', function(data) {
+        console.log('Received', data);
+      });
     });
   }
 }
